@@ -185,8 +185,6 @@ Expected parameters (in dict):
             self.__dict__[k] = kw[k]
 
         keyVer = kw.get('keyVer', 0x30)
-        assert 0x30 <= keyVer and keyVer <= 0x3F, \
-            "Wrong key version %02X" % keyVer
         self.keyVer = keyVer
 
         seqCounter = kw.get('seqCounter', 0)
@@ -246,8 +244,6 @@ Raise exception in case of wrong response. """
         diverData, keyInfo, card_chal, card_cryptogram, seqCounter =\
             partition(l2s(resp), (10, 13, 21, 29))
         kv, i = ord(keyInfo[0]), ord(keyInfo[2])
-        assert 0x30 <= kv and kv <= 0x3F, \
-            "Wrong key version in resp. to Init Update %02X" % kv
         assert keyInfo[1] == chr(0x03), \
             "Wrong SCP number in resp. to Init Update %02X" % ord(keyInfo[0])
         assert i & ~(M_PSEUDO | M_RMACENC) == 0 \
