@@ -414,12 +414,14 @@ Input APDU and output APDU are list of u8. """
             data2enc = pad80(cdata, 16)
             cdata = k.encrypt(data2enc)
             lc = len(cdata)
-            assert lc <= 0xFF, "Lc after encryption too long: %d" % lc
         if self.SL & SL_CMAC:    # C-MAC
             lc += 8
-            assert lc <= 0xFF, "Lc after MACing too long: %d" % lc
-            data2sign = self.MACchain + chr(scla) + l2s(apdu[1:4])\
-                + chr(lc) + cdata
+            data2sign = self.MACchain + chr(scla) + l2s(apdu[1:4])
+            if(lc > 0xff):
+                data2sign += b'\x00' + chr((lc >> 8) & 0xff) + chr(lc & 0xff)
+            else:
+                data2sign += chr(lc)
+            data2sign += cdata
             self.MACchain = CMAC(self.SMAC, data2sign)
             cdata += self.MACchain[:8]
         apdu = [self.CLA(True, b8)] + apdu[1:4] + [lc] + s2l(cdata)
